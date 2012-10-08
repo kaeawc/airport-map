@@ -1,0 +1,9 @@
+::-webkit-scrollbar {
+  width: 13px;
+  height: 13px; }
+ 
+::-webkit-scrollbar:hover {
+  height: 18px; }
+
+::-webkit-scrollbar-track-piece {
+  background-color: #151716; }
