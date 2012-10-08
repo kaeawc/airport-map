@@ -1,0 +1,19 @@
+doctype 5
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/css/reset.css')
+    link(rel='stylesheet', href='/css/style.css')
+    link(rel='stylesheet', href='/css/scrollbar.css')
+    script(type='text/javascript', src='./js/main.js')
+
+  body
+    #main(class='content')
+      #map
+
+  script(type='text/javascript')
+		var map = new Map();
+		map.get_data('/js/test-data.json');
+		window.onload = function() {
+			map.draw();
+		}
