@@ -5,24 +5,19 @@
  * @constructor
  */
 function Ajax(callback,options) {
+	this.xhr;
+
 	if(typeof options === "Object") throw {
 		name:'InvalidArgumentException',
 		message:'"options" must be specified'
 	}
 
-	this.xhr;
-
-
 	if (window.XMLHttpRequest) this.xhr=new XMLHttpRequest();
 	else this.xhr=new ActiveXObject("Microsoft.XMLHTTP");
 	this.xhr.onreadystatechange = function() {
-
-
 		if(this.readyState != 4) return;
 		if(this.status != 200) return;
 		callback(this.responseText);
-
-
 	}
 }
 
