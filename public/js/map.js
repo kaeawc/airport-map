@@ -206,7 +206,10 @@ Map.prototype.render = function() {
 	this.canvas.mapTypes.set('Map', customMapType);
 	this.resize();
 
-	searchBar = new SearchBar('map-search-bar','Find an airport');
+	searchBar = new SearchBar('map-search-bar',{
+		initialText:'Find an airport',
+		url:'/js/airports.json'
+	});
 
 	var unfocus_search_bar = function() {
 		var element = document.getElementById('map-search-bar');

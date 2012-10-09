@@ -4,9 +4,10 @@
  * @param initialText
  * @constructor
  */
-function SearchBar(elementId,initialText) {
+function SearchBar(elementId,options) {
 	this.element = document.getElementById(elementId);
-	this.initialText = initialText;
+	this.initialText = options.initialText;
+	this.url = options.url;
 	this.query = '';
 
 }
