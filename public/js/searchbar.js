@@ -16,6 +16,7 @@ SearchBar.prototype.init = function() {
 	var that = this;
 	this.element.onfocus = function() { that.focus(); };
 	this.element.onblur = function() { that.blur(); };
+	this.element.onkeyup = function() { that.search(); };
 
 }
 SearchBar.prototype.focus = function() {
@@ -35,6 +36,11 @@ SearchBar.prototype.get_data = function() {
  * Fires when user is typing and is focused on the search bar.
  */
 SearchBar.prototype.search = function() {
+	var mapData = this.data;
+	var callback = function(data) { mapData = data; }
+	var request = new Ajax(callback,{json:true});
+	request.get_data('GET','/js/airports.json',null);
+
 
 }
 /**
