@@ -13,14 +13,22 @@ function Map() {
 	this.markers = [];
 	this.geolocate();
 }
-
+/**
+ *
+ * @param url
+ */
+Map.prototype.init = function(url) {
+	var mapData = this.data;
+	var callback = function(data) { mapData = data; }
+	var request = new Ajax(callback,{json:true});
+	request.get_data('GET',url,null);
+}
 /**
  *
  */
 Map.prototype.geolocate = function() {
 	this.location = new google.maps.LatLng(40.712673,-74.006202);
 }
-
 /**
  * Creates a new market on the map
  * @param latitude
@@ -30,27 +38,72 @@ Map.prototype.geolocate = function() {
 Map.prototype.add_marker = function(latitude,longitude,info) {
 	if(this.markers.indexOf(info.id)) return this.show_marker(this.markers[info.id]);
 
-	var marker;
+	var location = new google.maps.LatLng(latitude,longitude);
 
-	// make marker a Google Map Marker
+	var marker = new google.maps.Marker({
+		position: location,
+		map: this.canvas,
+		title: info.name,
+		id: info.id
+	});
 
-	marker.display = '';
+	marker.setZIndex(1);
+	marker.removed = false;
+	this.markers[info.id] = newMarker;
+
+	google.maps.event.addListener(marker, 'click', click_marker);
+	google.maps.event.addListener(marker, 'mouseover', hover_marker);
+	google.maps.event.addListener(marker, 'mouseout', leave_marker);
+
 	this.markers[info.id] = marker;
 	return this.show_marker(info.id);
 }
-
 /**
  *
  */
-Map.prototype.get_data = function() {
-	var mapData = this.data;
-	var callback = function(data) { mapData = data; }
-	var request = new Ajax(callback,{json:true});
-	request.get_data('GET','/js/airports.json',null);
-}
+Map.prototype.hover_marker = function() {
 
+}
 /**
  *
+ * @param waypoints
+ * @param options
+ */
+Map.prototype.draw_path = function(waypoints,options) {
+	if(!waypoints) throw {
+		name:'NullArgumentException',
+		message:'"waypoints" cannot be null when drawing a path'
+	}
+
+	for(var i in waypoints) {
+		if(typeof waypoints[i] !== 'LatLng') throw {
+			name:'InvalidArgumentException',
+			message:'"waypoints" can only contain LatLng objects'
+		}
+	}
+
+	if(!options) options = {};
+	if(!options.color) options.color = '#FF0000';
+	if(!options.opacity) options.opacity = 1.0;
+	if(!options.weight) options.weight = 2;
+
+	var flightPath = new google.maps.Polyline({
+		path: waypoints,
+		strokeColor: options.color,
+		strokeOpacity: options.opacity,
+		strokeWeight: options.weight
+	});
+
+	flightPath.setMap(this.canvas);
+}
+/**
+ *
+ */
+Map.prototype.leave_marker = function() {
+
+}
+/**
+ * Custom styling for Google Maps
  * @type {Object}
  */
 Map.prototype.style = [
@@ -125,12 +178,15 @@ Map.prototype.style = [
 	}
 ];
 /**
- *
+ * Allows a marker to be displayed
  * @param id
  */
 Map.prototype.show_marker = function(id) {
-	this.marker[id].setMap(this.canvas);
-	this.marker[id].removed = false;
+	if(this.marker.indexOf(id) && typeof this.marker[id] == "Marker") {
+		this.marker[id].setMap(this.canvas);
+		this.marker[id].removed = false;
+		return;
+	}
 }
 /**
  * Moves a marker on the map
@@ -222,11 +278,13 @@ Map.prototype.render = function() {
 	google.maps.event.addListener(this.canvas, 'center_changed', unfocus_search_bar);
 	searchBar.init();
 }
-
+/**
+ * Fires when the window changes size, expands to fill allowed height
+ */
 Map.prototype.resize = function() {
+	console.log(this.element.parentNode.style.height);
 	this.element.style.height = window.innerHeight + 'px';
 }
-
 /**
  * Re-centers the map
  * @param latitude
