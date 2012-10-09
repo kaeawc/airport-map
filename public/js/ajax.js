@@ -1,16 +1,38 @@
-function Ajax() {
+/**
+ *
+ * @param callback
+ * @param options
+ * @constructor
+ */
+function Ajax(callback,options) {
+	if(typeof options === "Object") throw {
+		name:'InvalidArgumentException',
+		message:'"options" must be specified'
+	}
 
+	this.xhr;
+
+
+	if (window.XMLHttpRequest) this.xhr=new XMLHttpRequest();
+	else this.xhr=new ActiveXObject("Microsoft.XMLHTTP");
+	this.xhr.onreadystatechange = function() {
+
+
+		if(this.readyState != 4) return;
+		if(this.status != 200) return;
+		callback(this.responseText);
+
+
+	}
 }
 
-Ajax.prototype.get = function() {
-
-}
-Ajax.prototype.post= function() {
-
-}
-Ajax.prototype.delete = function() {
-
-}
-Ajax.prototype.update = function() {
-
+/**
+ *
+ * @param method
+ * @param url
+ * @param data
+ */
+Ajax.prototype.get_data = function(method, url, data) {
+	this.xhr.open(method,url,true);
+	this.xhr.send(data);
 }
