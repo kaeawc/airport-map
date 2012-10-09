@@ -8,6 +8,7 @@ function Map() {
 	this.latitude;
 	this.longitude;
 	this.location;
+	this.searchBar;
 	this.data;
 	this.markers = [];
 	this.geolocate();
@@ -204,6 +205,19 @@ Map.prototype.render = function() {
 		{name: 'Map'});
 	this.canvas.mapTypes.set('Map', customMapType);
 	this.resize();
+
+	searchBar = new SearchBar('map-search-bar','Find an airport');
+
+	var unfocus_search_bar = function() {
+		var element = document.getElementById('map-search-bar');
+
+		if(element == document.activeElement)
+			element.blur();
+	}
+	//google.maps.event.addListener(newMarker, 'click', get_info);
+	google.maps.event.addListener(this.canvas, 'click', unfocus_search_bar);
+	google.maps.event.addListener(this.canvas, 'center_changed', unfocus_search_bar);
+	searchBar.init();
 }
 
 Map.prototype.resize = function() {
