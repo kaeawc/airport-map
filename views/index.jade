@@ -12,6 +12,8 @@ html
 
   body(onresize='map.resize();')
     #map
+    #map-search
+    		#map-search-bar(class='text-input',contentEditable='true',onfocus='if(this.innerText=="Enter address, business, or landmark")this.innerText="";',onblur='if(this.innerText == "") this.innerText="Enter address, business, or landmark";') Enter address, business, or landmark
 
 
   script(type='text/javascript')
