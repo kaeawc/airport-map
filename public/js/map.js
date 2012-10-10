@@ -21,7 +21,7 @@ function Map() {
 		airport:new google.maps.MarkerImage('/img/icons/airport_terminal_sm.png')
 	}
 
-	//this.locate();
+	this.locate();
 }
 /**
  *
@@ -99,6 +99,12 @@ Map.prototype.get_path = function() {
  */
 Map.prototype.locate = function() {
 	var defaultLocation = new google.maps.LatLng(40.712673,-74.006202);
+	this.location = defaultLocation;
+
+	return;
+
+	//TODO: fix express route for redirection
+
 	if(navigator.geolocation) {
 		browserSupportFlag = true;
 		navigator.geolocation.getCurrentPosition(function(position) {
@@ -109,8 +115,6 @@ Map.prototype.locate = function() {
 		});
 	}
 	else this.location = defaultLocation;
-
-	map.setCenter(this.location);
 }
 /**
  * Creates a new market on the map
