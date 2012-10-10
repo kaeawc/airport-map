@@ -56,9 +56,9 @@ SearchBar.prototype.add_result = function(result) {
 	if(this.results[result.iata]) return;
 	var element = document.createElement('div');
 	element.class = 'search-bar-result'
-	element.id = 'result-'+result.id;
+	element.id = 'result-'+result.icao;
 	element.innerText = result.name;
-	element.onclick = this.select_delegate;
+	element.setAttribute('onclick',this.select_delegate);
 	this.resultsElement.appendChild(element);
 	this.results[result.iata] = result;
 	this.results[result.iata].html = element;
