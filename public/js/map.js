@@ -51,6 +51,19 @@ Map.prototype.init = function(url) {
 	request.get_data('GET',url,null);
 }
 
+Map.prototype.get_result_id = function(result) {
+	return result.id.substr(result.id.indexOf('-') + 1);
+}
+Map.prototype.set_start = function(result) {
+	var id = this.get_result_id(result);
+
+	console.log(id);
+}
+Map.prototype.set_end = function(result) {
+	var id = this.get_result_id(result);
+
+	console.log(id);
+}
 /**
  *
  */
@@ -297,11 +310,13 @@ Map.prototype.render = function() {
 	this.searchStart = new SearchBar('airport-start',{
 		initialText:'Where are you?',
 		resultsElement:'start-results',
+		select_delegate:'map.select_start(this)',
 		url:'/js/airports.json'
 	});
 	this.searchEnd = new SearchBar('airport-end',{
 		initialText:'Where do you want to go?',
 		resultsElement:'end-results',
+		select_delegate:'map.select_end(this)',
 		url:'/js/airports.json'
 	});
 

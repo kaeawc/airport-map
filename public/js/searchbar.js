@@ -10,6 +10,7 @@ function SearchBar(elementId,options) {
 	this.url = options.url;
 	this.query = '';
 	this.results = [];
+	this.select_delegate = options.select_delegate;
 	this.resultsElement = document.getElementById(options.resultsElement);
 	this.element.innerText = this.initialText;
 	this.data = {};
@@ -43,42 +44,43 @@ SearchBar.prototype.set_data = function(data) {
  */
 
 SearchBar.prototype.clean_results = function() {
-	if(this.results.length === 0) return;
+	if (!this.resultsElement.hasChildNodes()) return;
 
-	for(var i in this.results)
-		this.resultsElement.removeChild(this.results[i].html);
+	while (this.resultsElement.childNodes.length >= 1)
+		this.resultsElement.removeChild(this.resultsElement.firstChild);
 
 	this.results = [];
 }
 
-
 SearchBar.prototype.add_result = function(result) {
-	console.log(result);
-	if(this.results[result.id]) return;
-	var resultElement = document.createElement('div');
-	resultElement.class = 'search-bar-result'
-	resultElement.id = 'result-'+result.id;
-	resultElement.innerText = result.name;
-	this.resultsElement.appendChild(resultElement);
-	this.results[result.id] = result;
-	this.results[result.id].html = resultElement;
-
-	console.log(this.results);
+	if(this.results[result.iata]) return;
+	var element = document.createElement('div');
+	element.class = 'search-bar-result'
+	element.id = 'result-'+result.id;
+	element.innerText = result.name;
+	element.onclick = this.select_delegate;
+	this.resultsElement.appendChild(element);
+	this.results[result.iata] = result;
+	this.results[result.iata].html = element;
 }
+
+/**
+ * Fires when user types into the search bar
+ * @return {*}
+ */
 SearchBar.prototype.search = function() {
-	var query = this.element.innerText.trim();
-
+	var query = this.element.innerText.trim().toLowerCase();
 	if(!query || query.length === 0 || query === this.initialText) return this.clean_results();
-
 	if(this.lastQuery === query) return;
 	this.clean_results();
-
 	this.lastQuery = query;
 
-	if(this.data[query]) this.add_result(this.data[query]);
-
 	for(var i in this.data) {
-		if(this.data[i].name.indexOf(query) === 0) this.add_result(this.data[i]);
+		var addThis = false;
+		if(this.data[i].name.toLowerCase().indexOf(query) === 0) addThis = true;
+		if(this.data[i].iata.toLowerCase().indexOf(query) === 0) addThis = true;
+		if(this.data[i].icao.toLowerCase().indexOf(query) === 0) addThis = true;
+		if(addThis) this.add_result(this.data[i]);
 	}
 }
 /**
