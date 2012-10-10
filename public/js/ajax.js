@@ -1,16 +1,10 @@
 /**
  *
  * @param callback
- * @param options
  * @constructor
  */
-function Ajax(callback,options) {
+function Ajax(callback) {
 	this.xhr;
-
-	if(typeof options === "Object") throw {
-		name:'InvalidArgumentException',
-		message:'"options" must be specified'
-	}
 
 	if (window.XMLHttpRequest) this.xhr=new XMLHttpRequest();
 	else this.xhr=new ActiveXObject("Microsoft.XMLHTTP");
