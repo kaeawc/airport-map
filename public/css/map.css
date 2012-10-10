@@ -3,12 +3,10 @@ div#map
 	width:100%;
 	min-height:300px;
 }
-div#map-search-bar
+div.map-search-bar
 {
 	position: fixed;
 	z-index: 999;
-	top: 15px;
-	left: 15px;
 	max-width: 90%;
 	min-width: 300px;
 	padding: 10px 0px 0px 20px;
@@ -17,4 +15,14 @@ div#map-search-bar
 	font-size: 20px;
 	font-weight: bold;
 	height: 35px;
+}
+div#airport-start
+{
+	top: 15px;
+	left: 15px;
+}
+div#airport-end
+{
+	top: 150px;
+	left: 15px;
 }

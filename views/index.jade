@@ -13,12 +13,13 @@ html
 
   body(onresize='map.resize();')
     #map
-    #map-search-bar(class='text-input',contentEditable='true') Find an airport
+    #airport-start(class='map-search-bar',contentEditable='true') Where are you?
+    #airport-end(class='map-search-bar',contentEditable='true') Where do you want to go?
 
 
   script(type='text/javascript')
     var map = new Map();
     window.onload = function() {
+      map.init('/js/airports.json');
       map.render();
-      map.get_data('/js/');
     }
