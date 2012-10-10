@@ -10,6 +10,7 @@ function Map() {
 	this.location;
 	this.searchBar;
 	this.data;
+
 	this.markers = [];
 	this.geolocate();
 }
@@ -18,11 +19,30 @@ function Map() {
  * @param url
  */
 Map.prototype.init = function(url) {
-	var mapData = this.data;
-	var callback = function(data) { mapData = data; }
-	var request = new Ajax(callback,{json:true});
+	var that = this;
+	var callback = function(data) { that.data = JSON.parse(data);
+
+		if(!that.data) return;
+
+		for(var i in that.data) {
+			var latitude = that.data[i].lat;
+			var longitude = that.data[i].lon;
+			var info = {
+				name:that.data[i].name,
+				id:i,
+				icao:that.data[i].icao,
+				url:that.data[i].url,
+				iata:that.data[i].iata
+			}
+
+			that.add_marker(latitude,longitude,info);
+			that.show_marker(info.id);
+		}
+	}
+	var request = new Ajax(callback);
 	request.get_data('GET',url,null);
 }
+
 /**
  *
  */
@@ -36,7 +56,6 @@ Map.prototype.geolocate = function() {
  * @param info
  */
 Map.prototype.add_marker = function(latitude,longitude,info) {
-	if(this.markers.indexOf(info.id)) return this.show_marker(this.markers[info.id]);
 
 	var location = new google.maps.LatLng(latitude,longitude);
 
@@ -49,14 +68,15 @@ Map.prototype.add_marker = function(latitude,longitude,info) {
 
 	marker.setZIndex(1);
 	marker.removed = false;
-	this.markers[info.id] = newMarker;
 
-	google.maps.event.addListener(marker, 'click', click_marker);
-	google.maps.event.addListener(marker, 'mouseover', hover_marker);
-	google.maps.event.addListener(marker, 'mouseout', leave_marker);
+	google.maps.event.addListener(marker, 'click', this.click_marker);
+	google.maps.event.addListener(marker, 'mouseover', this.hover_marker);
+	google.maps.event.addListener(marker, 'mouseout', this.leave_marker);
 
-	this.markers[info.id] = marker;
-	return this.show_marker(info.id);
+	if(!this.markers.indexOf(marker))
+		this.markers.push(marker);
+
+	return this.markers.indexOf(marker);
 }
 /**
  *
@@ -87,14 +107,14 @@ Map.prototype.draw_path = function(waypoints,options) {
 	if(!options.opacity) options.opacity = 1.0;
 	if(!options.weight) options.weight = 2;
 
-	var flightPath = new google.maps.Polyline({
+	var path = new google.maps.Polyline({
 		path: waypoints,
 		strokeColor: options.color,
 		strokeOpacity: options.opacity,
 		strokeWeight: options.weight
 	});
 
-	flightPath.setMap(this.canvas);
+	path.setMap(this.canvas);
 }
 /**
  *
@@ -182,9 +202,9 @@ Map.prototype.style = [
  * @param id
  */
 Map.prototype.show_marker = function(id) {
-	if(this.marker.indexOf(id) && typeof this.marker[id] == "Marker") {
-		this.marker[id].setMap(this.canvas);
-		this.marker[id].removed = false;
+	if(this.markers && this.markers.indexOf(id) && typeof this.markers[id] == "Marker") {
+		this.markers[id].setMap(this.canvas);
+		this.markers[id].removed = false;
 		return;
 	}
 }
@@ -223,8 +243,11 @@ Map.prototype.remove_marker = function(id) {
  * Fires when a marker is clicked on
  * @param marker
  */
-Map.prototype.click_marker = function(marker) {
-
+Map.prototype.click_marker = function() {
+	this.map.infowindow.content =
+		'<div class="info-window-title">' +this.title + '</div>'+
+		'<div class="info-window-code">' +this.id + '</div>';
+	this.map.infowindow.open(this.map,this);
 }
 /**
  * Fires when map zooms out
@@ -248,7 +271,7 @@ Map.prototype.zoom_in = function() {
 Map.prototype.render = function() {
 	this.canvas = new google.maps.Map(this.element, {
 		center: this.location,
-		zoom: 16,
+		zoom: 3,
 		mapTypeId: 'Map',
 		panControl: false,
 		zoomControl: false,
@@ -262,27 +285,35 @@ Map.prototype.render = function() {
 	this.canvas.mapTypes.set('Map', customMapType);
 	this.resize();
 
-	searchBar = new SearchBar('map-search-bar',{
-		initialText:'Find an airport',
+	this.searchStart = new SearchBar('airport-start',{
+		initialText:'Where are you?',
+		url:'/js/airports.json'
+	});
+	this.searchEnd = new SearchBar('airport-end',{
+		initialText:'Where do you want to go?',
 		url:'/js/airports.json'
 	});
 
 	var unfocus_search_bar = function() {
-		var element = document.getElementById('map-search-bar');
+		var start = document.getElementById('airport-start');
+		var end = document.getElementById('airport-end');
 
-		if(element == document.activeElement)
-			element.blur();
+		if(start == document.activeElement)
+			start.blur();
+		if(end == document.activeElement)
+			end.blur();
 	}
 	//google.maps.event.addListener(newMarker, 'click', get_info);
 	google.maps.event.addListener(this.canvas, 'click', unfocus_search_bar);
 	google.maps.event.addListener(this.canvas, 'center_changed', unfocus_search_bar);
-	searchBar.init();
+	this.canvas.infowindow = new google.maps.InfoWindow();
+	this.searchStart.init();
+	this.searchEnd.init();
 }
 /**
  * Fires when the window changes size, expands to fill allowed height
  */
 Map.prototype.resize = function() {
-	console.log(this.element.parentNode.style.height);
 	this.element.style.height = window.innerHeight + 'px';
 }
 /**
