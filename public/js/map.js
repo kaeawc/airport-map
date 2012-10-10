@@ -8,11 +8,16 @@ function Map() {
 	this.latitude;
 	this.longitude;
 	this.location;
-	this.searchBar;
+
+	this.searchStart;
+	this.searchEnd;
 	this.data;
 
 	this.markers = [];
 	this.geolocate();
+	this.icons = {
+		airport:new google.maps.MarkerImage('/img/icons/airport_terminal_sm.png')
+	}
 }
 /**
  *
@@ -35,9 +40,12 @@ Map.prototype.init = function(url) {
 				iata:that.data[i].iata
 			}
 
-			that.add_marker(latitude,longitude,info);
+			that.add_marker(latitude,longitude,info,that.icons.airport);
 			that.show_marker(info.id);
 		}
+
+		that.searchStart.set_data(that.data);
+		that.searchEnd.set_data(that.data);
 	}
 	var request = new Ajax(callback);
 	request.get_data('GET',url,null);
@@ -55,13 +63,14 @@ Map.prototype.geolocate = function() {
  * @param longitude
  * @param info
  */
-Map.prototype.add_marker = function(latitude,longitude,info) {
+Map.prototype.add_marker = function(latitude,longitude,info,icon) {
 
 	var location = new google.maps.LatLng(latitude,longitude);
 
 	var marker = new google.maps.Marker({
 		position: location,
 		map: this.canvas,
+		icon: icon,
 		title: info.name,
 		id: info.id
 	});
@@ -287,10 +296,12 @@ Map.prototype.render = function() {
 
 	this.searchStart = new SearchBar('airport-start',{
 		initialText:'Where are you?',
+		resultsElement:'start-results',
 		url:'/js/airports.json'
 	});
 	this.searchEnd = new SearchBar('airport-end',{
 		initialText:'Where do you want to go?',
+		resultsElement:'end-results',
 		url:'/js/airports.json'
 	});
 
@@ -307,8 +318,6 @@ Map.prototype.render = function() {
 	google.maps.event.addListener(this.canvas, 'click', unfocus_search_bar);
 	google.maps.event.addListener(this.canvas, 'center_changed', unfocus_search_bar);
 	this.canvas.infowindow = new google.maps.InfoWindow();
-	this.searchStart.init();
-	this.searchEnd.init();
 }
 /**
  * Fires when the window changes size, expands to fill allowed height
