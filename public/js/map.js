@@ -65,19 +65,17 @@ Map.prototype.set_start = function(result) {
 	this.startLocation = this.data[id];
 	this.searchStart.element.innerText = this.data[id].name + ' (' + this.data[id].iata + ')';
 	this.searchStart.clean_results();
-	var waypoints = this.get_path();
-	this.draw_path(waypoints,{
-		color:'#FFAA00',
-		opacity:1.0,
-		weight:3
-	});
-	this.distance.innerText = this.get_nautical_difference(this.startLocation,this.endLocation);
+	this.start_to_end();
 }
 Map.prototype.set_end = function(result) {
 	var id = this.get_result_id(result);
 	this.endLocation = this.data[id];
 	this.searchEnd.element.innerText = this.data[id].name + ' (' + this.data[id].iata + ')';
 	this.searchEnd.clean_results();
+	this.start_to_end();
+}
+
+Map.prototype.start_to_end = function() {
 	var waypoints = this.get_path();
 	this.draw_path(waypoints,{
 		color:'#FFAA00',
@@ -85,9 +83,8 @@ Map.prototype.set_end = function(result) {
 		weight:3
 	});
 
-	this.distance.innerText = Math.floor(this.get_nautical_difference(this.startLocation,this.endLocation));
+	this.distance.innerText = Math.floor(this.get_nautical_difference(this.startLocation,this.endLocation)) + ' nautical miles';
 }
-
 Map.prototype.get_path = function() {
 	var x,y;
 
