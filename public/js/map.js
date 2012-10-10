@@ -15,6 +15,7 @@ function Map() {
 	this.startLocation;
 	this.endLocation;
 	this.data;
+	this.distance = document.getElementById('flight-distance');
 
 	this.markers = [];
 	this.icons = {
@@ -23,6 +24,7 @@ function Map() {
 
 	this.locate();
 }
+
 /**
  *
  * @param url
@@ -69,6 +71,7 @@ Map.prototype.set_start = function(result) {
 		opacity:1.0,
 		weight:3
 	});
+	this.distance.innerText = this.get_nautical_difference(this.startLocation,this.endLocation);
 }
 Map.prototype.set_end = function(result) {
 	var id = this.get_result_id(result);
@@ -81,6 +84,8 @@ Map.prototype.set_end = function(result) {
 		opacity:1.0,
 		weight:3
 	});
+
+	this.distance.innerText = Math.floor(this.get_nautical_difference(this.startLocation,this.endLocation));
 }
 
 Map.prototype.get_path = function() {
@@ -115,6 +120,24 @@ Map.prototype.locate = function() {
 		});
 	}
 	else this.location = defaultLocation;
+}
+
+/**
+ * Determines the distance in nautical miles
+ * @param start Starting point
+ * @param end
+ * @return {Number}
+ */
+Map.prototype.get_nautical_difference = function(start, end) {
+	if(!start || !end) return '';
+	var R = 6371; // km
+	var dLat = (end.lat-start.lat) * Math.PI / 180;
+	var dLon = (end.lon-start.lon) * Math.PI / 180;
+	var lat1 = start.lat * Math.PI / 180;
+	var lat2 = end.lat * Math.PI / 180;
+	var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+	return (R * c) / 1.852; //convert km to nautical miles
 }
 /**
  * Creates a new market on the map
