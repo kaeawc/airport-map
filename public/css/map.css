@@ -32,15 +32,16 @@ div.search-bar-results
 	top: 65px;
 	left: 20px;
 	max-height: 75px;
-	min-width: 250px;
+	width: 300px;
 	font-size: 14px;
 	font-weight: normal;
+	overflow:auto;
 }
 div.search-bar-result
 {
 	height: 25px;
 	padding: 5px;
-	width: 100%;
+	width:auto;
 }
 div#end-results
 {
