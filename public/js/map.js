@@ -9,15 +9,19 @@ function Map() {
 	this.longitude;
 	this.location;
 
+	this.path;
 	this.searchStart;
 	this.searchEnd;
+	this.startLocation;
+	this.endLocation;
 	this.data;
 
 	this.markers = [];
-	this.geolocate();
 	this.icons = {
 		airport:new google.maps.MarkerImage('/img/icons/airport_terminal_sm.png')
 	}
+
+	//this.locate();
 }
 /**
  *
@@ -56,19 +60,57 @@ Map.prototype.get_result_id = function(result) {
 }
 Map.prototype.set_start = function(result) {
 	var id = this.get_result_id(result);
-
-	console.log(id);
+	this.startLocation = this.data[id];
+	this.searchStart.element.innerText = this.data[id].name + ' (' + this.data[id].iata + ')';
+	this.searchStart.clean_results();
+	var waypoints = this.get_path();
+	this.draw_path(waypoints,{
+		color:'#FFAA00',
+		opacity:1.0,
+		weight:3
+	});
 }
 Map.prototype.set_end = function(result) {
 	var id = this.get_result_id(result);
+	this.endLocation = this.data[id];
+	this.searchEnd.element.innerText = this.data[id].name + ' (' + this.data[id].iata + ')';
+	this.searchEnd.clean_results();
+	var waypoints = this.get_path();
+	this.draw_path(waypoints,{
+		color:'#FFAA00',
+		opacity:1.0,
+		weight:3
+	});
+}
 
-	console.log(id);
+Map.prototype.get_path = function() {
+	var x,y;
+
+	if(!this.startLocation) return;
+	if(!this.endLocation) return;
+
+	var waypoints = [];
+	waypoints.push(new google.maps.LatLng(this.startLocation.lat, this.startLocation.lon))
+	waypoints.push(new google.maps.LatLng(this.endLocation.lat, this.endLocation.lon))
+	return waypoints;
 }
 /**
  *
  */
-Map.prototype.geolocate = function() {
-	this.location = new google.maps.LatLng(40.712673,-74.006202);
+Map.prototype.locate = function() {
+	var defaultLocation = new google.maps.LatLng(40.712673,-74.006202);
+	if(navigator.geolocation) {
+		browserSupportFlag = true;
+		navigator.geolocation.getCurrentPosition(function(position) {
+			this.location = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+
+		}, function() {
+			this.location = defaultLocation;
+		});
+	}
+	else this.location = defaultLocation;
+
+	map.setCenter(this.location);
 }
 /**
  * Creates a new market on the map
@@ -108,35 +150,26 @@ Map.prototype.hover_marker = function() {
 }
 /**
  *
- * @param waypoints
- * @param options
+ * @param waypoints List of points to draw a path on
+ * @param options Options for how to draw the path (color,opacity,weight)
  */
 Map.prototype.draw_path = function(waypoints,options) {
-	if(!waypoints) throw {
-		name:'NullArgumentException',
-		message:'"waypoints" cannot be null when drawing a path'
-	}
-
-	for(var i in waypoints) {
-		if(typeof waypoints[i] !== 'LatLng') throw {
-			name:'InvalidArgumentException',
-			message:'"waypoints" can only contain LatLng objects'
-		}
-	}
+	if(!waypoints) return;
 
 	if(!options) options = {};
-	if(!options.color) options.color = '#FF0000';
+	if(!options.color) options.color = '#FFAA00';
 	if(!options.opacity) options.opacity = 1.0;
-	if(!options.weight) options.weight = 2;
+	if(!options.weight) options.weight = 3;
 
-	var path = new google.maps.Polyline({
+	if(this.path) this.path.setMap(null);
+	this.path = new google.maps.Polyline({
 		path: waypoints,
 		strokeColor: options.color,
 		strokeOpacity: options.opacity,
 		strokeWeight: options.weight
 	});
 
-	path.setMap(this.canvas);
+	this.path.setMap(this.canvas);
 }
 /**
  *
@@ -310,13 +343,13 @@ Map.prototype.render = function() {
 	this.searchStart = new SearchBar('airport-start',{
 		initialText:'Where are you?',
 		resultsElement:'start-results',
-		select_delegate:'map.select_start(this)',
+		select_delegate:'map.set_start(this)',
 		url:'/js/airports.json'
 	});
 	this.searchEnd = new SearchBar('airport-end',{
 		initialText:'Where do you want to go?',
 		resultsElement:'end-results',
-		select_delegate:'map.select_end(this)',
+		select_delegate:'map.set_end(this)',
 		url:'/js/airports.json'
 	});
 
