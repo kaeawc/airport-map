@@ -15,14 +15,34 @@ div.map-search-bar
 	font-size: 20px;
 	font-weight: bold;
 	height: 35px;
+	left: 15px;
 }
 div#airport-start
 {
 	top: 15px;
-	left: 15px;
 }
 div#airport-end
 {
 	top: 150px;
-	left: 15px;
+}
+div.search-bar-results
+{
+	position: fixed;
+	background: rgba(255,255,255,0.6);
+	top: 65px;
+	left: 20px;
+	max-height: 75px;
+	min-width: 250px;
+	font-size: 14px;
+	font-weight: normal;
+}
+div.search-bar-result
+{
+	height: 25px;
+	padding: 5px;
+	width: 100%;
+}
+div#end-results
+{
+	top:200px;
 }
