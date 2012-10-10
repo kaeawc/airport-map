@@ -13,8 +13,10 @@ html
 
   body(onresize='map.resize();')
     #map
-    #airport-start(class='map-search-bar',contentEditable='true') Where are you?
-    #airport-end(class='map-search-bar',contentEditable='true') Where do you want to go?
+    #airport-start(class='map-search-bar',contentEditable='true')
+    #start-results(class='search-bar-results',for='airport-start')
+    #airport-end(class='map-search-bar',contentEditable='true')
+    #end-results(class='search-bar-results',for='airport-end')
 
 
   script(type='text/javascript')
